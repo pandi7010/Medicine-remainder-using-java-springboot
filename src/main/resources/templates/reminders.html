@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Medicine Reminder</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; }
+        table { width:100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+        form { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+        form > div { display:flex; flex-direction:column; }
+        .full { grid-column: 1 / -1; }
+        button { cursor:pointer; }
+        .days { display:flex; gap:8px; flex-wrap:wrap; }
+        .days label { font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<h1>Medicine Reminder</h1>
+<form action="/add" method="post">
+    <div><label>Medicine Name</label><input name="name" required></div>
+    <div><label>Dosage</label><input name="dosage" placeholder="e.g., 1 tablet" required></div>
+    <div><label>Time</label><input type="time" name="time" required></div>
+    <div class="days">
+        <label><input type="checkbox" name="days" value="MON">Mon</label>
+        <label><input type="checkbox" name="days" value="TUE">Tue</label>
+        <label><input type="checkbox" name="days" value="WED">Wed</label>
+        <label><input type="checkbox" name="days" value="THU">Thu</label>
+        <label><input type="checkbox" name="days" value="FRI">Fri</label>
+        <label><input type="checkbox" name="days" value="SAT">Sat</label>
+        <label><input type="checkbox" name="days" value="SUN">Sun</label>
+    </div>
+    <div class="full"><label>Notes</label><textarea name="notes"></textarea></div>
+    <div class="full"><button type="submit">Add</button></div>
+</form>
+<table>
+    <thead>
+    <tr><th>#</th><th>Name</th><th>Dosage</th><th>Time</th><th>Days</th><th>Notes</th><th></th></tr>
+    </thead>
+    <tbody>
+    <tr th:each="r, i : ${reminders}">
+        <td th:text="${i.index + 1}"></td>
+        <td th:text="${r.name}"></td>
+        <td th:text="${r.dosage}"></td>
+        <td th:text="${r.time}"></td>
+        <td th:text="${r.days}"></td>
+        <td th:text="${r.notes}"></td>
+        <td><form th:action="@{'/delete/' + ${r.id}}" method="post"><button>Delete</button></form></td>
+    </tr>
+    </tbody>
+</table>
+<script>
+setInterval(async () => {
+    const res = await fetch('/api/notifications');
+    const list = await res.json();
+    list.forEach(n => alert(`⏰ Time for: ${n.name} (${n.dosage})\n${n.notes ?? ''}`));
+}, 15000);
+</script>
+</body>
+</html>
